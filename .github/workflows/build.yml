@@ -4,7 +4,7 @@ on:
   pull_request:
 jobs:
   macos-universal:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
