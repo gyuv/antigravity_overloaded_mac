@@ -1,0 +1,27 @@
+name: build
+on:
+  push:
+  pull_request:
+jobs:
+  macos-universal:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Swift version
+        run: swift --version
+      - name: Unit tests
+        run: swift test
+      - name: Universal build + app bundle + dmg (ad-hoc signed)
+        run: ./scripts/build-universal.sh dmg
+      - name: Verify architectures
+        run: |
+          for b in "dist/Antigravity Code.app/Contents/MacOS/AntigravityCode" "dist/Antigravity Code.app/Contents/Helpers/agcode"; do
+            archs=$(lipo -archs "$b"); echo "$b: $archs"
+            [[ "$archs" == *arm64* && "$archs" == *x86_64* ]]
+          done
+          "dist/Antigravity Code.app/Contents/Helpers/agcode" --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AntigravityCode-universal
+          path: dist/*.dmg
