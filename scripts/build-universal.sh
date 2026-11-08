@@ -23,13 +23,14 @@ universal() {
   for a in "${ARCHS[@]}"; do
     log "Compiling release for $a"
     swift build -c release --triple "$a-apple-macosx12.0"
+    eval "BIN_$a=\"\$(swift build -c release --triple $a-apple-macosx12.0 --show-bin-path)\""
   done
   mkdir -p "$BUILD/universal"
   for product in agcode AntigravityCodeApp; do
     log "lipo → $product (universal)"
     lipo -create \
-      "$BUILD/arm64-apple-macosx12.0/release/$product" \
-      "$BUILD/x86_64-apple-macosx12.0/release/$product" \
+      "$BIN_arm64/$product" \
+      "$BIN_x86_64/$product" \
       -output "$BUILD/universal/$product"
     lipo -info "$BUILD/universal/$product"
   done

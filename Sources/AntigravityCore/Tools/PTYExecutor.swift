@@ -81,12 +81,13 @@ public final class PTYExecutor: @unchecked Sendable {
         let shell = Self.defaultShell
         let args = [shell, "-c", script]
 
-        var fa: posix_spawn_file_actions_t
-        var attr: posix_spawnattr_t
         #if canImport(Darwin)
-        fa = nil; attr = nil
+        // On Darwin these are opaque pointers that the *_init calls allocate.
+        var fa: posix_spawn_file_actions_t? = nil
+        var attr: posix_spawnattr_t? = nil
         #else
-        fa = posix_spawn_file_actions_t(); attr = posix_spawnattr_t()
+        var fa = posix_spawn_file_actions_t()
+        var attr = posix_spawnattr_t()
         #endif
         posix_spawn_file_actions_init(&fa)
         posix_spawn_file_actions_adddup2(&fa, slave, 0)
